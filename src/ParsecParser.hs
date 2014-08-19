@@ -78,9 +78,9 @@ expr2 = do
 
 expr3 :: Parser Expr
 expr3 = do
-  e1 <- expr3
+  e1 <- expr4
   op <- binop
-  e2 <- expr3
+  e2 <- expr4
   return (Binop op e1 e2)
   where binop = (reservedOp "+" >> return Add) <|>
                 (reservedOp "-" >> return Sub)
