@@ -11,3 +11,11 @@ data Expr = Abs Id Expr
           | Binop Op Expr Expr
           deriving (Eq,Show)
 
+addExpr :: Expr -> Expr -> Expr
+addExpr = Binop Add
+
+subExpr :: Expr -> Expr -> Expr
+subExpr = Binop Sub
+
+mulExpr :: Expr -> Expr -> Expr
+mulExpr = Binop Mul

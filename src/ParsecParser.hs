@@ -1,20 +1,20 @@
 module ParsecParser (parseExpr) where
 
 import Expr
-
 import Text.Parsec
 import Text.Parsec.String (Parser)
+import Text.Parsec.Language (emptyDef)
 import qualified Text.Parsec.Token as Token
-import Text.Parsec.Language (haskellStyle)
 
 
 -- Lexer
 
 lexer :: Token.TokenParser ()
 lexer = Token.makeTokenParser style
-  where style = haskellStyle { Token.reservedOpNames = ["->","\\","+","*","-","="],
-                               Token.reservedNames = ["let","in","end"],
-                               Token.commentLine = "#" }
+  where style = emptyDef {
+          Token.reservedOpNames = ["->","\\","+","*","-","="],
+          Token.reservedNames = ["let","in","end"],
+          Token.commentLine = "#" }
 
 natural :: Parser Integer
 natural = Token.natural lexer
@@ -30,6 +30,7 @@ reservedOp = Token.reservedOp lexer
 
 identifier :: Parser String
 identifier = Token.identifier lexer
+
 
 -- Parser
 
@@ -62,31 +63,25 @@ letin = do
   reserved "end"
   return (App (Abs x e2) e1)
 
+termOp :: Parser (Expr -> Expr -> Expr)
+termOp = (reservedOp "+" >> return addExpr) <|>
+         (reservedOp "-" >> return subExpr) <?>
+         "term operator"
+
+factorOp :: Parser (Expr -> Expr -> Expr)
+factorOp = (reservedOp "*" >> return mulExpr) <?>
+           "factor operator"
+
 expr :: Parser Expr
-expr = do
-  e1 <- expr2
-  e2 <- expr2
-  return (App e1 e2)
-
-expr2 :: Parser Expr
-expr2 = do
-  e1 <- expr3
-  op <- binop
-  e2 <- expr3
-  return (Binop op e1 e2)
-  where binop = reservedOp "*" >> return Mul
-
-expr3 :: Parser Expr
-expr3 = do
-  e1 <- expr4
-  op <- binop
-  e2 <- expr4
-  return (Binop op e1 e2)
-  where binop = (reservedOp "+" >> return Add) <|>
-                (reservedOp "-" >> return Sub)
-
-expr4 :: Parser Expr
-expr4 = lambda <|> letin <|> number <|> variable <|> parens expr
+expr = fmap (foldl1 App) (many1 rdx)
+  where rdx = term `chainl1` termOp
+        term = factor `chainl1` factorOp
+        factor = parens expr <|>
+                 number <|>
+                 variable <|>
+                 lambda <|>
+                 letin <?>
+                 "expression"
 
 allOf :: Parser a -> Parser a
 allOf p = do
