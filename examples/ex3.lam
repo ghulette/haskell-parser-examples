@@ -1,1 +1,1 @@
-let id = \x -> x in id 3 * id 4 + id 5 end
+let id = \x -> x in id 3 * id 4 + id 5

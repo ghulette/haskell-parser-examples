@@ -13,7 +13,7 @@ lexer :: Token.TokenParser ()
 lexer = Token.makeTokenParser style
   where style = emptyDef {
           Token.reservedOpNames = ["->","\\","+","*","-","="],
-          Token.reservedNames = ["let","in","end"],
+          Token.reservedNames = ["let","in"],
           Token.commentLine = "#" }
 
 natural :: Parser Integer
@@ -60,7 +60,6 @@ letin = do
   e1 <- expr
   reserved "in"
   e2 <- expr
-  reserved "end"
   return (App (Abs x e2) e1)
 
 termOp :: Parser (Expr -> Expr -> Expr)

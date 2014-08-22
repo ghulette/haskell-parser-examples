@@ -1,1 +1,1 @@
-let f = \x -> x + 1 in f 3 + f 4 * f 5 end
+let f = \x -> x + 1 in f 3 + f 4 * f 5

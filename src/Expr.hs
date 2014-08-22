@@ -12,14 +12,16 @@ data Expr = Abs Id Expr
           deriving (Eq,Show)
 
 source :: Expr -> String
-source (Abs x e) = "(\\" ++ x ++ " -> " ++ source e ++ ")"
-source (App e1 e2) = "(" ++ source e1 ++ ") (" ++ source e2 ++ ")"
-source (Var x) = x
-source (Num n) = show n
-source (Binop op e1 e2) = "(" ++ source e1 ++ sourceOp op ++ source e2 ++ ")"
+source expr = case expr of
+  (Abs x e) -> parens $ "\\" ++ x ++ " -> " ++ source e
+  (App e1 e2) -> parens $ source e1 ++ " " ++ source e2
+  (Binop op e1 e2) -> parens $ source e1 ++ sourceOp op ++ source e2
+  (Var x) -> x
+  (Num n) -> show n
   where sourceOp Add = " + "
         sourceOp Sub = " - "
         sourceOp Mul = " * "
+        parens s = "(" ++ s ++ ")"
 
 addExpr :: Expr -> Expr -> Expr
 addExpr = Binop Add

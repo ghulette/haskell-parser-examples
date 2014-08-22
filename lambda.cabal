@@ -1,16 +1,16 @@
 Name:           haskell-parsers
-Version:        0.1
+Version:        0.2
 Cabal-Version:  >= 1.2
 License:        BSD3
 Author:         Geoff Hulette
-Synopsis:       Untyped lambda-calculus interpreter with different parsers
+Synopsis:       Simple untyped lambda-calculus interpreter demonstrating different parsers
 Build-Type:     Simple
   
-Executable lambda-parsec
+Executable lambda
   Main-Is:        Main.hs
   Other-modules:  AlexToken,HappyParser
   Hs-Source-Dirs: src
-  Build-Depends:  base >= 4,parsec >= 3
+  Build-Depends:  base >= 4,parsec >= 3,array
   GHC-Options:    -Wall
 
 -- Executable lambda-happy-alex

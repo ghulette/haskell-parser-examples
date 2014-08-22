@@ -1,6 +1,7 @@
 {
 {-# OPTIONS_GHC -w #-}
-module Token (Token(..),scanTokens) where
+module AlexToken (Token(..),scanTokens) where
+import Expr
 }
 
 %wrapper "basic"
@@ -16,8 +17,7 @@ tokens :-
   "#".*                         ;
   let                           { \s -> TokenLet }
   in                            { \s -> TokenIn }
-  end                           { \s -> TokenEnd }
-  $digit+                       { \s -> TokenInt (read s) }
+  $digit+                       { \s -> TokenNum (read s) }
   "->"                          { \s -> TokenArrow }
   \=                            { \s -> TokenEq }
   \\                            { \s -> TokenLambda }
@@ -32,14 +32,12 @@ tokens :-
 
 data Token = TokenLet
            | TokenIn
-           | TokenEnd
            | TokenLambda
-           | TokenInt Int
+           | TokenNum Int
            | TokenSym String
            | TokenArrow
            | TokenEq
-           | TokenTermOp String
-           | TokenFactOp String
+           | TokenOp Op
            | TokenLParen
            | TokenRParen
            deriving (Eq,Show)
