@@ -1,5 +1,6 @@
-An example of writing a parser for the untyped lambda calculus, using the two
-seemingly most-popular options available: Parsec and Happy/Alex.
+Demonstrate how to write a basic parser for the untyped lambda
+calculus in Haskell, using the two seemingly most-popular options
+available: Parsec and Happy/Alex.
 
 To build:
   cabal configure
