@@ -21,9 +21,9 @@ tokens :-
   "->"                          { \s -> TokenArrow }
   \=                            { \s -> TokenEq }
   \\                            { \s -> TokenLambda }
-  [\+]                          { \s -> TokenOp Add }
-  [\-]                          { \s -> TokenOp Sub }
-  [\*]                          { \s -> TokenOp Mul }
+  [\+]                          { \s -> TokenAdd }
+  [\-]                          { \s -> TokenSub }
+  [\*]                          { \s -> TokenMul }
   \(                            { \s -> TokenLParen }
   \)                            { \s -> TokenRParen }
   $alpha [$alpha $digit \_ \']* { \s -> TokenSym s }
@@ -37,7 +37,9 @@ data Token = TokenLet
            | TokenSym String
            | TokenArrow
            | TokenEq
-           | TokenOp Op
+           | TokenAdd
+           | TokenSub
+           | TokenMul
            | TokenLParen
            | TokenRParen
            deriving (Eq,Show)

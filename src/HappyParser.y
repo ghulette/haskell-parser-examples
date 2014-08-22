@@ -17,23 +17,23 @@ import Expr
     '\\'  { TokenLambda }
     '->'  { TokenArrow }
     '='   { TokenEq }
-    '+'   { TokenOp $$ }
-    '-'   { TokenOp $$ }
-    '*'   { TokenOp $$ }
+    '+'   { TokenAdd }
+    '-'   { TokenSub }
+    '*'   { TokenMul }
     '('   { TokenLParen }
     ')'   { TokenRParen }
 
+%left '+' '-'
+%left '*'
 %%
 
 Expr : let VAR '=' Expr in Expr    { App (Abs $2 $6) $4 }
      | '\\' VAR '->' Expr          { Abs $2 $4 }
-     | Exp1                        { $1 }
+     | Form                        { $1 }
 
-Exp1 : Exp1 '+' Term               { Binop $2 $1 $3 }
-     | Exp1 '-' Term               { Binop $2 $1 $3 }
-     | Term                        { $1 }
-
-Term : Term '*' Juxt               { Binop $2 $1 $3 }
+Form : Form '+' Form               { Binop Add $1 $3 }
+     | Form '-' Form               { Binop Sub $1 $3 }
+     | Form '*' Form               { Binop Mul $1 $3 }
      | Juxt                        { $1 }
 
 Juxt : Juxt Atom                   { App $1 $2 }
