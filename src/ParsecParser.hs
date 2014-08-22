@@ -2,6 +2,7 @@ module ParsecParser (parseExpr) where
 
 import Expr
 import Text.Parsec
+import Text.Parsec.Expr
 import Text.Parsec.String (Parser)
 import Text.Parsec.Language (emptyDef)
 import qualified Text.Parsec.Token as Token
@@ -35,22 +36,10 @@ identifier = Token.identifier lexer
 -- Parser
 
 variable :: Parser Expr
-variable = do
-  x <- identifier
-  return (Var x)
+variable = Var `fmap` identifier
 
 number :: Parser Expr
-number = do
-  n <- natural
-  return (Num (fromIntegral n))
-
-lambda :: Parser Expr
-lambda = do
-  reservedOp "\\"
-  x <- identifier
-  reservedOp "->"
-  e <- expr
-  return (Abs x e)
+number = (Num . fromIntegral) `fmap` natural
 
 letin :: Parser Expr
 letin = do
@@ -62,25 +51,28 @@ letin = do
   e2 <- expr
   return (App (Abs x e2) e1)
 
-termOp :: Parser (Expr -> Expr -> Expr)
-termOp = (reservedOp "+" >> return addExpr) <|>
-         (reservedOp "-" >> return subExpr) <?>
-         "term operator"
-
-factorOp :: Parser (Expr -> Expr -> Expr)
-factorOp = (reservedOp "*" >> return mulExpr) <?>
-           "factor operator"
+lambda :: Parser Expr
+lambda = do
+  reservedOp "\\"
+  x <- identifier
+  reservedOp "->"
+  e <- expr
+  return (Abs x e)
 
 expr :: Parser Expr
-expr = term `chainl1` termOp
-  where term = factor `chainl1` factorOp
-        factor = fmap (foldl1 App) (many1 atom)
-        atom = parens expr <|>
-               number <|>
-               variable <|>
-               lambda <|>
-               letin <?>
-               "expression"
+expr = letin <|> lambda <|> formula
+
+formula :: Parser Expr
+formula = buildExpressionParser [[mulOp],[addOp,subOp]] juxta <?> "formula"
+  where addOp = Infix (reservedOp "+" >> return addExpr) AssocLeft
+        subOp = Infix (reservedOp "-" >> return subExpr) AssocLeft
+        mulOp = Infix (reservedOp "*" >> return mulExpr) AssocLeft
+
+juxta :: Parser Expr
+juxta = (foldl1 App) `fmap` (many1 atom)
+
+atom :: Parser Expr
+atom = variable <|> number <|> parens expr <?> "atom"
 
 allOf :: Parser a -> Parser a
 allOf p = do
