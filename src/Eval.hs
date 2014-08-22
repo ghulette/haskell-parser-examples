@@ -2,20 +2,17 @@ module Eval (Val(..),eval) where
 
 import Expr
 
-data Val = FuncVal Env Id Expr
+data Val = FunVal Env Id Expr
          | NumVal Int
 
 instance Show Val where
-  show (FuncVal _ _ _) = "<fun>"
+  show (FunVal _ _ _) = "<fun>"
   show (NumVal n) = show n
 
 type Env = Id -> Val
 
 extend :: Env -> Id -> Val -> Env
 extend e x v = \y -> if x == y then v else e y
-
-apply :: Env -> Id -> Val
-apply = ($)
 
 empty :: Env
 empty = \_ -> error "Not found!"
@@ -26,14 +23,14 @@ evalOp Sub = (-)
 evalOp Mul = (*)
 
 evalIn :: Env -> Expr -> Val
-evalIn env (Abs x e) = FuncVal env x e
+evalIn env (Abs x e) = FunVal env x e
 evalIn env (App e1 e2) =
   case evalIn env e1 of
-    FuncVal env' x e3 ->
+    FunVal env' x e3 ->
       let v2 = evalIn env e2 in
       evalIn (extend env' x v2) e3
     _ -> error "Cannot apply value"
-evalIn env (Var x) = apply env x
+evalIn env (Var x) = env x
 evalIn _ (Num n) = NumVal n
 evalIn env (Binop op e1 e2) =
   let v1 = evalIn env e1

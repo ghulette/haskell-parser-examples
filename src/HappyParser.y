@@ -12,38 +12,42 @@ import Expr
 %token
     let  { TokenLet }
     in   { TokenIn }
-    end  { TokenEnd }
     int  { TokenInt $$ }
     var  { TokenSym $$ }
     '\\' { TokenLambda }
     '->' { TokenArrow }
     '='  { TokenEq }
-    op   { TokenOp $$ }
+    '+'  { TokenOp $$ }
+    '-'  { TokenOp $$ }
+    '*'  { TokenOp $$ }
     '('  { TokenLParen }
     ')'  { TokenRParen }
 
-%left '+' '-'
-%left '*' '/'
-
 %%
 
-Exprs : Expr                             { $1 }
-      | Exprs Expr                       { App $1 $2 }
+Expr : L1 { $1 }
 
-Expr : Exprs                             { $1 }
-     | let var '=' Expr in Expr end      { App (Abs $2 $6) $4 }
-     | '\\' var '->' Expr                { Abs $2 $4 }
-     | Expr op Expr                      { Op (opEnc $2) $1 $3 }
-     | '(' Expr ')'                      { $2 }
-     | int                               { Num $1 }
-     | var                               { Var $1 }
+L1 : let var '=' Expr in L1      { App (Abs $2 $6) $4 }
+   | L2                          { $1 }
+
+L2 : '\\' var '->' L2            { Abs $2 $4 }
+   | L3                          { $1 }
+
+L3 : L3 L4                       { App $1 $2 }
+   | L4                          { $1 }
+
+L4 : L4 '+' L5                   { Binop $2 $1 $3 }
+   | L4 '-' L5                   { Binop $2 $1 $3 }
+   | L5                          { $1 }
+
+L5 : L5 '*' L6                   { Binop $2 $1 $3 }
+   | L6                          { $1 }
+
+L6 : '(' Expr ')'                { $2 }
+   | int                         { Num $1 }
+   | var                         { Var $1 }
 
 {
-
-opEnc :: String -> Binop
-opEnc "+" = Add
-opEnc "-" = Sub
-opEnc "*" = Mul
 
 parseError :: [Token] -> a
 parseError _ = error "Parse error"

@@ -73,15 +73,15 @@ factorOp = (reservedOp "*" >> return mulExpr) <?>
            "factor operator"
 
 expr :: Parser Expr
-expr = fmap (foldl1 App) (many1 rdx)
-  where rdx = term `chainl1` termOp
-        term = factor `chainl1` factorOp
-        factor = parens expr <|>
-                 number <|>
-                 variable <|>
-                 lambda <|>
-                 letin <?>
-                 "expression"
+expr = term `chainl1` termOp
+  where term = factor `chainl1` factorOp
+        factor = fmap (foldl1 App) (many1 atom)
+        atom = parens expr <|>
+               number <|>
+               variable <|>
+               lambda <|>
+               letin <?>
+               "expression"
 
 allOf :: Parser a -> Parser a
 allOf p = do
