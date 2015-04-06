@@ -3,11 +3,17 @@ calculus in Haskell, using the two seemingly most-popular options
 available: Parsec and Happy/Alex.
 
 To build:
-  cabal configure
-  cabal build
+
+```
+cabal configure
+cabal build
+```
 
 To run
-  ./dist/build/lambda/lambda < examples/ex1.lam
+
+```
+./dist/build/lambda/lambda < examples/ex1.lam
+```
 
 This will run each of the parsers and print the AST and evaluation.
 
